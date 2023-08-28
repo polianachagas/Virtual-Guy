@@ -13,6 +13,8 @@ public class Player : MonoBehaviour
     private Rigidbody2D rig;
     private Animator anim;
 
+    bool isBlowing;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -29,22 +31,27 @@ public class Player : MonoBehaviour
 
     void Move()
     {
-        Vector3 movement = new Vector3(Input.GetAxis("Horizontal"), 0f, 0f);
-        transform.position += movement * Time.deltaTime * Speed;
+        //Vector3 movement = new Vector3(Input.GetAxis("Horizontal"), 0f, 0f);
 
-        if (Input.GetAxis("Horizontal") > 0f)
+        //transform.position += movement * Time.deltaTime * Speed;
+
+        float movement = Input.GetAxis("Horizontal");
+
+        rig.velocity = new Vector2(movement * Speed, rig.velocity.y);
+
+        if (movement > 0f)
         {
             anim.SetBool("run", true);
             transform.eulerAngles = new Vector3(0f, 0f, 0f);
         }
 
-        if (Input.GetAxis("Horizontal") < 0f)
+        if (movement < 0f)
         {
             anim.SetBool("run", true);
             transform.eulerAngles = new Vector3(0f, 180f, 0f);
         }
 
-        if (Input.GetAxis("Horizontal") == 0f)
+        if (movement == 0f)
         {
             anim.SetBool("run", false);
         }
@@ -53,7 +60,7 @@ public class Player : MonoBehaviour
 
     void Jump()
     {
-        if (Input.GetButtonDown("Jump"))
+        if (Input.GetButtonDown("Jump") && !isBlowing)
         {
             if (!isJumping)
             {
@@ -80,6 +87,20 @@ public class Player : MonoBehaviour
             isJumping = false;
             anim.SetBool("jump", false);
         }
+
+        if (collision.gameObject.tag == "Spike")
+        {
+            //Debug.Log("Tocou");
+            GameController.instance.ShowGameOver();
+            Destroy(gameObject);
+        }
+
+        if (collision.gameObject.tag == "Saw")
+        {
+            GameController.instance.ShowGameOver();
+            Destroy(gameObject);
+        }
+
     }
 
     void OnCollisionExit2D(Collision2D collision)
@@ -87,6 +108,22 @@ public class Player : MonoBehaviour
         if (collision.gameObject.layer == 8)
         {
             isJumping = true;
+        }
+    }
+
+    void OnTriggerStay2D(Collider2D collider)
+    {
+        if (collider.gameObject.layer == 11)
+        {
+            isBlowing = true;
+        }
+    }
+
+    void OnTriggerExit2D(Collider2D collider)
+    {
+        if (collider.gameObject.layer == 11)
+        {
+            isBlowing = false;
         }
     }
 }
