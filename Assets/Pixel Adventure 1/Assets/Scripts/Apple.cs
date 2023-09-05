@@ -18,11 +18,13 @@ public class Apple : MonoBehaviour
         circle = GetComponent<CircleCollider2D>();
     }
 
+    private bool activateOnce = false;
 
     void OnTriggerEnter2D(Collider2D collider)
     {
-        if (collider.gameObject.tag == "Player")
+        if (collider.gameObject.tag == "Player" && !activateOnce)
         {
+            activateOnce = true;
             sr.enabled = false;
             circle.enabled = false;
             collected.SetActive(true);
